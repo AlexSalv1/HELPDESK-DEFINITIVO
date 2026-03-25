@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Help Desk</title>
+    <link rel="stylesheet" href="css/estilo-painel.css">
+</head>
+<body>
+
+    <div id="menuLateral" class="sidebar">
+        <a href="javascript:void(0)" class="fechar-btn" onclick="alternarMenu()">&times;</a>
+        
+        <div class="sidebar-perfil">
+             <span id="nome-usuario">Carregando...</span>
+        </div>
+
+        <div class="sidebar-links">
+            <a href="/painel.html"> Início</a>
+            <a href="/perfil.html"> Meu Perfil</a>
+            <a href="/admin.html" id="link-admin" style="display: none; background: rgba(0, 123, 255, 0.1); font-weight: bold;">⚙️ Painel Admin</a>
+            
+            <a href="/api/logout" class="btn-sair-menu"> Sair</a>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <header class="header">
+            <div style="display: flex; align-items: center;">
+                <button class="btn-menu" onclick="alternarMenu()">☰</button>
+                <h2 style="margin: 0;">(Sistema de chamados (BETA)</h2>
+            </div>
+            <div>
+                <button class="btn btn-tema" id="btn-tema" onclick="alternarTema()">🌙 Modo Escuro</button>
+            </div>
+        </header>
+
+        <div id="admin-dashboard" class="stats-grid" style="display: none;">
+            <div class="card">
+                <small>Resolvidos</small>
+                <p id="stat-total" style="font-weight: bold; margin: 5px 0;">0</p>
+            </div>
+            <div class="card" style="border-left-color: var(--success);">
+                <small>Tempo Médio</small>
+                <p id="stat-tempo" style="font-weight: bold; margin: 5px 0;">0.0h</p>
+            </div>
+        </div>
+
+        <div class="acoes-painel" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <a href="/novo-chamado.html" class="btn btn-novo">+ Novo Chamado</a>
+            
+            <div class="busca-wrapper" style="display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 15px;">
+                <input type="text" id="inputBusca" placeholder="Pesquisar..." onkeyup="filtrarChamados()" onkeypress="verificarEnter(event)" style="border: none; background: transparent; outline: none; color: var(--text-main); width: 200px;">
+                <button class="btn-lupa" onclick="filtrarChamados()" style="background: none; border: none; cursor: pointer; font-size: 16px;">🔍</button>
+            </div>
+        </div>
+
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Categoria</th>
+                        <th>Problema</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    <tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modalDetalhes" class="modal">
+        <div class="modal-content" style="max-width: 600px;"> 
+            <span class="fechar" onclick="fecharModal('modalDetalhes')">&times;</span>
+            <h3 id="det-id"></h3>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column;">
+                    <div class="info-grupo"><b>Assunto</b><span id="det-titulo"></span></div>
+                    <div class="info-grupo"><b>Descrição</b><span id="det-desc"></span></div>
+                    <div class="info-grupo"><b>Resolução</b><span id="det-res"></span></div>
+                    
+                    <div id="det-acoes-admin" style="margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border); display: none; gap: 10px; flex-wrap: wrap; justify-content: flex-start;">
+                        </div>
+                </div>
+
+                <div style="flex: 1; min-width: 250px; border-left: 1px solid var(--border); padding-left: 15px;">
+                    <b>Interações</b>
+                    <div id="chat-mensagens" style="height: 200px; overflow-y: auto; background: var(--bg-body); padding: 10px; border-radius: 5px; margin-top: 5px; font-size: 13px;"></div>
+                    <div style="display: flex; gap: 5px; margin-top: 10px;">
+                        <input type="text" id="input-chat" placeholder="Escreva aqui..." style="margin: 0; flex: 1; padding: 5px; border-radius: 5px; border: 1px solid var(--border);">
+                        <button class="btn btn-finalizar" onclick="enviarMensagemInterna()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="fechar" onclick="fecharModal('modalEditar')">&times;</span>
+            <h3>Editar Chamado</h3>
+            <input type="hidden" id="edit-id">
+            <div class="info-grupo"><b>Novo Assunto</b><input type="text" id="edit-titulo" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid var(--border); border-radius: 5px;"></div>
+            <div class="info-grupo"><b>Nova Descrição</b><textarea id="edit-descricao" rows="4" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid var(--border); border-radius: 5px;"></textarea></div>
+            <div class="info-grupo">
+                <b>Categoria</b>
+                <select id="edit-categoria" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border);">
+                    <option value="Software">Software</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Rede">Rede</option>
+                    <option value="Acessos">Acessos</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+            <button class="btn btn-finalizar" onclick="salvarEdicao()" style="width: 100%;">Salvar Alterações</button>
+        </div>
+    </div>
+
+    <script>
+        let chamadosMemoria = [];
+        let chamadoAtualId = null;
+        let tipoUsuarioLogado = '';
+
+        // --- SISTEMA E VISUAL ---
+        function alternarMenu() {
+            const menu = document.getElementById("menuLateral");
+            menu.style.width = (menu.style.width === "250px") ? "0" : "250px";
+        }
+
+        function alternarTema() {
+            const virouDark = document.body.classList.toggle('dark-mode');
+            const tema = virouDark ? 'dark' : 'light';
+            document.getElementById('btn-tema').innerText = virouDark ? "☀️ Modo Claro" : "🌙 Modo Escuro";
+            fetch('/api/usuario/tema', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tema }) });
+        }
+
+        function verificarEnter(event) { if (event.key === "Enter") filtrarChamados(); }
+        function filtrarChamados() {
+            const termo = document.getElementById('inputBusca').value.toLowerCase().trim();
+            document.querySelectorAll('#tabela-corpo tr').forEach(linha => {
+                if (linha.cells.length < 2) return;
+                linha.style.display = linha.innerText.toLowerCase().includes(termo) ? "" : "none";
+            });
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).style.display = "none";
+            if (id === 'modalDetalhes') chamadoAtualId = null; 
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('modalDetalhes')) fecharModal('modalDetalhes');
+            if (event.target == document.getElementById('modalEditar')) fecharModal('modalEditar');
+        }
+
+        // --- AÇÕES DO CHAMADO ---
+        function verDetalhes(id) {
+            const c = chamadosMemoria.find(x => x.id == id);
+            if(!c) return;
+            
+            chamadoAtualId = id;
+            document.getElementById('det-id').innerText = `Chamado #${c.id}`;
+            document.getElementById('det-titulo').innerText = c.titulo;
+            document.getElementById('det-desc').innerText = c.descricao;
+            document.getElementById('det-res').innerText = c.resolucao || "Em aberto";
+            
+            // Injeta botões no canto inferior esquerdo
+            const boxAcoes = document.getElementById('det-acoes-admin');
+            boxAcoes.innerHTML = ''; 
+            
+            if (tipoUsuarioLogado === 'admin') {
+                boxAcoes.style.display = 'flex'; 
+                if (c.status === 'Aberto') {
+                    boxAcoes.innerHTML += `<a href="/resolver.html?id=${c.id}" class="btn btn-finalizar" style="text-decoration:none;">✅ Resolver Chamado</a>`;
+                }
+                boxAcoes.innerHTML += `<button class="btn" style="background: var(--danger); color: white;" onclick="excluirChamado(${c.id})">🗑️ Excluir Chamado</button>`;
+            } else {
+                boxAcoes.style.display = 'none';
+            }
+
+            carregarMensagensInternas(id);
+            document.getElementById('modalDetalhes').style.display = "block";
+        }
+
+        function abrirEditar(id) {
+            const c = chamadosMemoria.find(x => x.id == id);
+            if (c) {
+                document.getElementById('edit-id').value = c.id;
+                document.getElementById('edit-titulo').value = c.titulo;
+                document.getElementById('edit-descricao').value = c.descricao;
+                document.getElementById('edit-categoria').value = c.categoria || "Outros";
+                document.getElementById('modalEditar').style.display = "block";
+            }
+        }
+
+        function salvarEdicao() {
+            const dados = { id: document.getElementById('edit-id').value, titulo: document.getElementById('edit-titulo').value, descricao: document.getElementById('edit-descricao').value, categoria: document.getElementById('edit-categoria').value };
+            fetch('/api/editar-chamado', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) })
+            .then(res => res.json()).then(res => res.sucesso ? location.reload() : alert("Erro: " + res.erro)).catch(err => alert("Erro ao salvar."));
+        }
+
+        function excluirChamado(id) {
+            if (confirm(`⚠️ Deseja EXCLUIR o chamado #${id}? Esta ação não pode ser desfeita.`)) {
+                fetch('/api/excluir-chamado', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+                .then(r => r.json()).then(d => d.sucesso ? location.reload() : alert("Erro: " + d.erro));
+            }
+        }
+
+        // --- CHAT INTERNO ---
+        function carregarMensagensInternas(id) {
+            const box = document.getElementById('chat-mensagens');
+            box.innerHTML = "Carregando...";
+            fetch(`/api/mensagens/${id}`).then(res => res.json()).then(msgs => {
+                box.innerHTML = msgs.length ? "" : "<small>Nenhuma interação.</small>";
+                msgs.forEach(m => {
+                    const cor = m.remetente_tipo === 'admin' ? 'var(--primary)' : 'var(--success)';
+                    box.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px;"><b style="color: ${cor}">${m.remetente_nome}:</b> ${m.texto}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function enviarMensagemInterna() {
+            const texto = document.getElementById('input-chat').value;
+            if(!texto) return;
+            fetch('/api/mensagens', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chamado_id: chamadoAtualId, texto }) })
+            .then(() => { document.getElementById('input-chat').value = ""; carregarMensagensInternas(chamadoAtualId); });
+        }
+
+        // --- CARREGAMENTO INICIAL DA TABELA ---
+        fetch('/api/chamados')
+            .then(res => res.json())
+            .then(dados => {
+                if (!dados || !dados.chamados) return;
+                
+                chamadosMemoria = dados.chamados;
+                tipoUsuarioLogado = dados.tipoUsuario; 
+                
+                document.getElementById('nome-usuario').innerText = dados.nomeUsuario || "";
+                if (dados.temaSalvo === 'dark') document.body.classList.add('dark-mode');
+
+                if(tipoUsuarioLogado === 'admin') {
+                    document.getElementById('admin-dashboard').style.display = 'grid';
+                    document.getElementById('link-admin').style.display = 'block'; 
+                    fetch('/api/estatisticas').then(r => r.json()).then(s => { 
+                        document.getElementById('stat-total').innerText = s.totalResolvidos; 
+                        document.getElementById('stat-tempo').innerText = s.tempoMedio + "h"; 
+                    });
+                }
+
+                const tbody = document.getElementById('tabela-corpo');
+                if (chamadosMemoria.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Nenhum chamado encontrado.</td></tr>";
+                    return;
+                }
+                
+                tbody.innerHTML = "";
+                dados.chamados.forEach(c => {
+                    const isAberto = c.status === 'Aberto';
+                    const dInicio = c.criado_em ? new Date(c.criado_em.replace(' ', 'T')).toLocaleString('pt-BR') : '---';
+
+                    let acoes = `<button class="btn-detalhes" onclick="verDetalhes(${c.id})" title="Ver Detalhes e Chat">Detalhes</button>`;
+                    if (isAberto) acoes += `<button class="btn-detalhes" style="background: var(--warning); color: black; margin-left: 5px;" onclick="abrirEditar(${c.id})" title="Editar">✏️</button>`;
+
+                    tbody.innerHTML += `<tr>
+                        <td>#${c.id}</td>
+                        <td><strong>${c.categoria || 'Geral'}</strong><br><small style="color:gray;">${dInicio}</small></td>
+                        <td>${c.titulo}</td>
+                        <td><span style="font-weight:bold; color:${isAberto ? '#856404':'#155724'}">${c.status}</span></td>
+                        <td>${acoes}</td>
+                    </tr>`;
+                });
+            })
+            .catch(e => {
+                document.getElementById('tabela-corpo').innerHTML = "<tr><td colspan='5' style='color:red; text-align:center;'>Erro de conexão.</td></tr>";
+            });
+    </script>
+</body>
+</html>

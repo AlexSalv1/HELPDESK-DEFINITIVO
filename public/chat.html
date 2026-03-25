@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat do Chamado</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #e5ddd5; display: flex; flex-direction: column; height: 100vh; }
+        .cabecalho { background: #075e54; color: white; padding: 15px; text-align: center; font-weight: bold; }
+        
+        .area-mensagens { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        
+        .balao { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .balao-admin { background: #fff; align-self: flex-start; border-top-left-radius: 0; }
+        .balao-cliente { background: #dcf8c6; align-self: flex-end; border-top-right-radius: 0; }
+        
+        .nome-remetente { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 5px; }
+        .data-hora { font-size: 10px; color: #999; text-align: right; margin-top: 5px; }
+        
+        .area-digitar { background: #f0f0f0; padding: 15px; display: flex; gap: 10px; }
+        .area-digitar textarea { flex: 1; padding: 10px; border-radius: 20px; border: none; resize: none; outline: none; }
+        .area-digitar button { background: #128c7e; color: white; border: none; padding: 0 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="cabecalho" id="titulo-chat">Carregando Chat...</div>
+
+    <div class="area-mensagens" id="lista-mensagens">
+        </div>
+
+    <form class="area-digitar" method="POST" action="/api/mensagens">
+        <input type="hidden" name="chamado_id" id="campo_chamado_id">
+        <textarea name="texto" rows="2" placeholder="Digite sua mensagem..." required></textarea>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script>
+        const parametrosDaUrl = new URLSearchParams(window.location.search);
+        const idChamado = parametrosDaUrl.get('id');
+        
+        document.getElementById('campo_chamado_id').value = idChamado;
+        document.getElementById('titulo-chat').innerText = `Chat - Chamado #${idChamado}`;
+
+        // Busca as mensagens no servidor
+        fetch(`/api/mensagens/${idChamado}`)
+            .then(res => res.json())
+            .then(mensagens => {
+                const divLista = document.getElementById('lista-mensagens');
+                
+                if (mensagens.length === 0) {
+                    divLista.innerHTML = "<p style='text-align:center; color:#888; font-size:12px;'>Nenhuma mensagem enviada ainda. Inicie a conversa!</p>";
+                } else {
+                    mensagens.forEach(msg => {
+                        // Define a cor do balão dependendo de quem mandou
+                        const classeBalao = msg.remetente_tipo === 'admin' ? 'balao-admin' : 'balao-cliente';
+                        
+                        // Formata a data (simplificada)
+                        const dataFormatada = new Date(msg.data_envio).toLocaleString('pt-BR');
+
+                        divLista.innerHTML += `
+                            <div class="balao ${classeBalao}">
+                                <div class="nome-remetente">${msg.remetente_nome} (${msg.remetente_tipo})</div>
+                                <div>${msg.texto}</div>
+                                <div class="data-hora">${dataFormatada}</div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Rola o chat para a última mensagem lá embaixo automaticamente
+                divLista.scrollTop = divLista.scrollHeight;
+            });
+    </script>
+</body>
+</html>

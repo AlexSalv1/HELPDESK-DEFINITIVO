@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Help Desk</title>
+    <link rel="stylesheet" href="/css/estilo-painel.css">
+    <style>
+        /* Estilo para o seletor de permissões na tabela */
+        .select-permissao {
+            padding: 5px; border-radius: 5px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-main); font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="/painel.html" class="btn" style="background: var(--text-main); color: var(--bg-card); text-decoration: none;">⬅ Voltar</a>
+            <h2 style="margin: 0;">⚙️ Gestão de Usuários</h2>
+        </div>
+    </header>
+
+    <div class="acoes-painel" style="margin-bottom: 20px;">
+        <button class="btn-novo-inline" onclick="abrirModalUsuario()">+ Novo Usuário</button>
+    </div>
+
+    <div class="tabela-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Nível de Acesso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-usuarios">
+                <tr><td colspan="5" style="text-align:center;">Carregando usuários...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalNovoUsuario" class="modal">
+    <div class="modal-content">
+        <span class="fechar" onclick="fecharModal()">&times;</span>
+        <h3>Adicionar Novo Usuário</h3>
+        
+        <div class="info-grupo">
+            <b>Nome Completo</b>
+            <input type="text" id="novo-nome" placeholder="Ex: Carlos Silva">
+        </div>
+        <div class="info-grupo">
+            <b>E-mail</b>
+            <input type="email" id="novo-email" placeholder="Ex: carlos@email.com">
+        </div>
+        <div class="info-grupo">
+            <b>Senha</b>
+            <input type="password" id="novo-senha" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="info-grupo">
+            <b>Permissão Inicial</b>
+            <select id="novo-tipo">
+                <option value="cliente">Cliente (Padrão)</option>
+                <option value="admin">Administrador (TI)</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-finalizar" onclick="salvarNovoUsuario()" style="width: 100%; margin-top: 15px;">Criar Usuário</button>
+    </div>
+</div>
+
+<script>
+    let idDoAdminLogado = null;
+
+    // 1. Carregar lista de usuários
+    function carregarUsuarios() {
+        fetch('/api/admin/usuarios')
+            .then(res => res.json())
+            .then(dados => {
+                if (dados.erro) {
+                    alert(dados.erro);
+                    window.location.href = '/painel.html'; // Expulsa se não for admin
+                    return;
+                }
+
+                idDoAdminLogado = dados.idLogado;
+                const tbody = document.getElementById('tabela-usuarios');
+                tbody.innerHTML = "";
+
+                dados.usuarios.forEach(u => {
+                    // O select muda de cor dependendo da permissão
+                    const corTipo = u.tipo === 'admin' ? 'color: var(--danger);' : 'color: var(--primary);';
+                    
+                    // Desabilita o select se o usuário for o próprio admin logado
+                    const desabilitado = u.id === idDoAdminLogado ? 'disabled' : '';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${u.id}</td>
+                            <td><b>${u.nome}</b></td>
+                            <td>${u.email}</td>
+                            <td>
+                                <select class="select-permissao" style="${corTipo}" onchange="alterarPermissao(${u.id}, this.value)" ${desabilitado}>
+                                    <option value="cliente" ${u.tipo === 'cliente' ? 'selected' : ''}>Cliente</option>
+                                    <option value="admin" ${u.tipo === 'admin' ? 'selected' : ''}>Admin</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn" style="background: var(--danger); color: white;" onclick="deletarUsuario(${u.id})" ${desabilitado}>Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(err => console.error("Erro ao carregar:", err));
+    }
+
+    // 2. Criar Usuário
+    function abrirModalUsuario() { document.getElementById('modalNovoUsuario').style.display = 'block'; }
+    function fecharModal() { document.getElementById('modalNovoUsuario').style.display = 'none'; }
+    window.onclick = function(event) { if (event.target == document.getElementById('modalNovoUsuario')) fecharModal(); }
+
+    function salvarNovoUsuario() {
+        const dados = {
+            nome: document.getElementById('novo-nome').value,
+            email: document.getElementById('novo-email').value,
+            senha: document.getElementById('novo-senha').value,
+            tipo: document.getElementById('novo-tipo').value
+        };
+
+        if (!dados.nome || !dados.email || !dados.senha) return alert("Preencha todos os campos!");
+
+        fetch('/api/admin/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.sucesso) {
+                alert("Usuário criado com sucesso!");
+                fecharModal();
+                carregarUsuarios(); // Recarrega a tabela
+            } else {
+                alert("Erro: " + res.erro);
+            }
+        });
+    }
+
+    // 3. Alterar Permissão
+    function alterarPermissao(id, novoTipo) {
+        if (!confirm(`Tem certeza que deseja mudar este usuário para ${novoTipo.toUpperCase()}?`)) {
+            carregarUsuarios(); // Se cancelar, volta o select pro original
+            return;
+        }
+
+        fetch('/api/admin/usuarios/permissao', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, tipo: novoTipo })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (!res.sucesso) alert("Erro: " + res.erro);
+            carregarUsuarios();
+        });
+    }
+
+    // 4. Deletar Usuário
+    function deletarUsuario(id) {
+        if (confirm("⚠️ ALERTA: Excluir este usuário é uma ação irreversível. Deseja continuar?")) {
+            fetch('/api/admin/usuarios/deletar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.sucesso) {
+                    carregarUsuarios();
+                } else {
+                    alert("Erro: " + res.erro);
+                }
+            });
+        }
+    }
+
+    // Inicia a página
+    carregarUsuarios();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Help Desk</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; margin-top: 100px; }
+        .caixa-login { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="caixa-login">
+        <h2>Entrar no Sistema</h2>
+        <form method="POST" action="/api/login">
+            <label>E-mail:</label>
+            <input type="email" name="email" value="maria@email.com" required>
+            
+            <label>Senha:</label>
+            <input type="password" name="senha" value="123456" required>
+            
+            <button type="submit">Entrar</button>
+        </form>
+        <p style="font-size: 12px; color: gray;">Dica: admin@empresa.com ou maria@email.com (Senha: 123456)</p>
+    </div>
+</body>
+</html>

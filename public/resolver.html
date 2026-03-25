@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolver Chamado</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        .caixa { background: #fff3cd; padding: 20px; border-radius: 8px; border: 1px solid #ffeeba; }
+        textarea { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;}
+        .voltar { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <a href="/painel.html" class="voltar">⬅ Cancelar e Voltar</a>
+    <div class="caixa">
+        <h2>Como este chamado foi resolvido?</h2>
+        
+        <form method="POST" action="/api/chamados/resolver">
+            <input type="hidden" name="id_chamado" id="campo_id_chamado">
+            
+            <label>Descreva os passos e ações tomadas (ex: Rotina de backup reconfigurada, cabo substituído...):</label><br>
+            <textarea name="resolucao" rows="6" placeholder="Escreva a solução aqui..." required></textarea>
+            
+            <button type="submit">Finalizar Chamado ✓</button>
+        </form>
+    </div>
+
+    <script>
+        const parametrosDaUrl = new URLSearchParams(window.location.search);
+        const id = parametrosDaUrl.get('id');
+        document.getElementById('campo_id_chamado').value = id;
+    </script>
+</body>
+</html>

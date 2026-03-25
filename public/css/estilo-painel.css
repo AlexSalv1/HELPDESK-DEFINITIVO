@@ -1,0 +1,325 @@
+/* --- 1. VARIÁVEIS E CORES --- */
+:root {
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --text-main: #333333;
+    --border: #dddddd;
+    --primary: #007bff;
+    --success: #28a745;
+    --info: #17a2b8;
+    --danger: #dc3545;
+}
+
+/* Cores do Modo Escuro */
+body.dark-mode {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #e0e0e0;
+    --border: #333333;
+}
+
+/* --- 2. ESTILOS GERAIS --- */
+body { 
+    font-family: 'Segoe UI', Tahoma, sans-serif; 
+    background-color: var(--bg-body); 
+    color: var(--text-main); 
+    margin: 0; padding: 10px; 
+    transition: background 0.3s, color 0.3s;
+}
+
+.container { max-width: 1200px; margin: auto; }
+
+/* Cabeçalho Responsivo */
+.header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    flex-wrap: wrap; /* Permite quebrar linha no celular */
+    gap: 15px;
+    padding: 20px; 
+    background: var(--bg-card); 
+    border-radius: 10px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    margin-bottom: 20px;
+}
+
+/* Cards de Estatísticas */
+.stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 15px; 
+    margin-bottom: 20px; 
+}
+
+.card { 
+    background: var(--bg-card); 
+    padding: 15px; 
+    border-radius: 10px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+    border-left: 5px solid var(--primary);
+}
+
+/* Tabela Responsiva (Truque do Scroll) */
+.tabela-container { 
+    background: var(--bg-card); 
+    border-radius: 10px; 
+    overflow-x: auto; /* Adiciona scroll horizontal se a tela for pequena */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+}
+
+table { width: 100%; border-collapse: collapse; min-width: 600px; } /* Garante que a tabela não esmague */
+
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+
+/* Botões */
+.btn { 
+    padding: 10px 18px; border-radius: 6px; cursor: pointer; 
+    border: none; font-weight: bold; text-decoration: none; 
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-tema { background: #6c757d; color: white; }
+.btn-novo { background: var(--primary); color: white; margin-bottom: 20px; width: auto; }
+.btn-chat { background: var(--info); color: white; margin-bottom: 5px; }
+.btn-finalizar { background: var(--success); color: white; }
+
+/* --- 3. MEDIA QUERIES (PARA CELULAR) --- */
+@media (max-width: 600px) {
+    .header { flex-direction: column; text-align: center; }
+    .header div { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .btn-novo { width: 100%; }
+    .card p { font-size: 20px; }
+}
+
+/* --- ESTILO DA CAIXA DE SOLUÇÃO --- */
+.caixa-solucao { 
+    background: rgba(40, 167, 69, 0.1); 
+    border: 1px solid var(--success);
+    padding: 10px; 
+    border-radius: 5px; 
+    margin-top: 8px; 
+    font-size: 13px;
+    color: var(--text-main);
+    word-wrap: break-word; /* Garante que textos longos não estourem a tabela */
+    max-width: 250px;      /* Limita a largura para manter a tabela organizada */
+}
+
+.caixa-solucao b {
+    color: var(--success);
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* Botão de Detalhes */
+.btn-detalhes {
+    background: var(--primary);
+    color: white;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    margin-left: 5px;
+}
+
+/* Estilo do Modal (Pop-up) */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+    background-color: var(--bg-card);
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.fechar-modal {
+    position: absolute;
+    right: 15px; top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.info-grupo { margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.info-grupo b { color: var(--primary); display: block; font-size: 12px; text-transform: uppercase; }
+
+.btn-detalhes {
+    min-width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Container da busca acima da tabela */
+.busca-container {
+    display: flex;
+    justify-content: flex-end; /* Alinha à direita */
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.busca-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 15px;
+    transition: 0.3s;
+}
+
+.busca-wrapper:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+.busca-wrapper input {
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 5px;
+    color: var(--text-main);
+    width: 100px; /* Largura da barra */
+}
+
+.btn-lupa {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* --- MENU LATERAL (SIDEBAR) --- */
+.btn-menu {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: var(--text-main);
+    cursor: pointer;
+    margin-right: 15px;
+    transition: 0.3s;
+}
+
+.btn-menu:hover {
+    color: var(--primary);
+}
+
+.sidebar {
+    height: 100%;
+    width: 0; /* Começa escondido */
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    background-color: var(--bg-card);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    overflow-x: hidden;
+    transition: 0.3s; /* Animação de deslizar */
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: var(--text-main);
+    display: block;
+    transition: 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar a:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.fechar-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 36px !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* --- ESTILOS DO NOVO MENU LATERAL --- */
+
+/* Caixa do nome do usuário no topo */
+.sidebar-perfil {
+    padding: 10px 25px 20px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+    word-break: break-word; /* Evita que nomes longos quebrem o layout */
+}
+
+/* Agrupa os links para empurrar o 'Sair' para baixo */
+.sidebar-links {
+    flex-grow: 1; /* Faz esta div crescer e ocupar o espaço vazio do menu */
+}
+
+/* Botão Sair ancorado no fundo esquerdo */
+.btn-sair-sidebar {
+    margin-top: auto; /* A mágica acontece aqui: empurra pro fundo absoluto */
+    color: var(--danger) !important; /* Força a cor vermelha */
+    font-weight: bold;
+    border-top: 1px solid var(--border); /* Linha divisória em cima do botão */
+    padding-bottom: 25px; /* Dá um respiro pro fim da tela */
+}
+
+.btn-sair-sidebar:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+}
+
+/* Garante que a barra lateral use Flexbox e ocupe 100% da altura */
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    background-color: var(--bg-card);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+    
+    /* AS TRÊS LINHAS MÁGICAS ABAIXO: */
+    display: flex; 
+    flex-direction: column;
+    padding-bottom: 20px; /* Dá um espaço no fundo da tela */
+}
+
+/* Faz a área dos links crescer e empurrar o Sair pro fundo */
+.sidebar-links {
+    flex-grow: 1;
+}
+
+/* Botão Sair dentro da lista principal */
+.btn-sair-menu {
+    color: var(--danger) !important; /* Mantém a cor vermelha de destaque */
+    font-weight: bold;
+    border-top: 1px solid var(--border); /* Uma linha sutil para separar das outras opções */
+}
+
+.btn-sair-menu:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+}
