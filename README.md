@@ -46,5 +46,22 @@ Helpdesk/
 ├── database/        # Ficheiro do SQLite e configuração da base de dados
 ├── server.js        # Ficheiro principal que inicia o servidor Node
 └── package.json     # Dependências e scripts do projeto
+```
+## ⚙️ Variáveis de Ambiente
 
+*(Se o seu projeto utilizar um ficheiro `.env`, explique aqui. Exemplo:)*
+Para rodar este projeto, poderá ser necessário adicionar as seguintes variáveis de ambiente no seu ficheiro `.env`:
 
+`PORT` = 3000
+`SECRET_KEY` = (sua chave secreta para sessões/tokens)
+
+## 🗺️ Próximos Passos (Roadmap)
+
+Melhorias planeadas para o futuro do projeto:
+- [ ] Implementar notificações por e-mail para atualizações de tickets.
+- [ ] Adicionar suporte para anexo de ficheiros e imagens nos chamados.
+- [ ] Exportação de relatórios do painel administrativo para PDF/Excel.
+
+---
+*Desenvolvido por Alex Salviano.*
+```
