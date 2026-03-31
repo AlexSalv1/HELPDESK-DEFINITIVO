@@ -119,7 +119,7 @@ app.get('/api/chamados', (req, res) => {
     if (!req.session.usuarioId) return res.status(401).json({ erro: "Não logado" });
     const { usuarioId, usuarioTipo, usuarioNome, usuarioTema } = req.session;
     
-    // Usamos o LEFT JOIN para puxar o 'nome' da tabela Usuarios baseado no 'cliente_id' do Chamado
+    // Usa o LEFT JOIN para puxar o 'nome' da tabela Usuarios baseado no 'cliente_id' do Chamado
     let sql = "";
     let params = [];
 
