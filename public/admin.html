@@ -93,7 +93,7 @@
                 tbody.innerHTML = "";
 
                 dados.usuarios.forEach(u => {
-                    // O select muda de cor dependendo da permissão
+                    // muda de cor dependendo da permissão
                     const corTipo = u.tipo === 'admin' ? 'color: var(--danger);' : 'color: var(--primary);';
                     
                     // Desabilita o select se o usuário for o próprio admin logado
